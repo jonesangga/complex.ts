@@ -1,16 +1,13 @@
-# Complex.js - ℂ in JavaScript
+# complex.ts
 
-[![NPM Package](https://img.shields.io/npm/v/complex.js.svg?style=flat)](https://npmjs.org/package/complex.js "View this project on npm")
-[![MIT license](http://img.shields.io/badge/license-MIT-brightgreen.svg)](http://opensource.org/licenses/MIT)
-
-Complex.js is a well tested JavaScript library to work with [complex number arithmetic](https://raw.org/book/analysis/complex-numbers/) in JavaScript. It implements every elementary complex number manipulation function and the API is intentionally similar to [Fraction.js](https://github.com/rawify/Fraction.js). Furthermore, it's the basis of [Polynomial.js](https://github.com/rawify/Polynomial.js) and [Math.js](https://github.com/josdejong/mathjs).
+This is a fork of [Complex.js](https://github.com/rawify/Complex.js).
+This is intended for my personal use.
 
 
 ## Examples
 
-
 ```js
-let Complex = require('complex.js');
+import { Complex } from "../dist/complex.js";
 
 let c = new Complex("99.3+8i");
 c.mul({re: 3, im: 9}).div(4.9).sub(3, 2);
@@ -32,8 +29,8 @@ function quadraticRoot(a, b, c) {
 
 For cubic roots have a look at [RootFinder](https://github.com/rawify/RootFinder.js) which uses Complex.js.
 
-## Parser
 
+## Parser
 
 Any function (see below) as well as the constructor of the *Complex* class parses its input like this.
 
@@ -71,8 +68,8 @@ new Complex("i");
 new Complex(3, 2); // 3+2i
 ```
 
-## Attributes
 
+## Attributes
 
 Every complex number object exposes its real and imaginary part as attribute `re` and `im`:
 
@@ -83,8 +80,8 @@ console.log("Real part:", c.re); // 3
 console.log("Imaginary part:", c.im); // 2
 ```
 
-## Functions
 
+## Functions
 
 Complex sign()
 ---
@@ -209,7 +206,6 @@ The following trigonometric functions are defined on Complex.js:
 
 ## Geometric Equivalence
 
-
 Complex numbers can also be seen as a vector in the 2D space. Here is a simple overview of basic operations and how to implement them with complex.js:
 
 New vector
@@ -325,19 +321,14 @@ Include the `complex.min.js` file in your project:
 Or in a Node.js project:
 
 ```javascript
-const Complex = require('complex.js');
+import { Complex } from "../dist/complex.js";
 ```
 
 or 
 
 ```javascript
-import Complex from 'complex.js';
+import { Complex } from "../dist/complex.js";
 ```
-
-
-## Coding Style
-
-As every library I publish, Complex.js is also built to be as small as possible after compressing it with Google Closure Compiler in advanced mode. Thus the coding style orientates a little on maxing-out the compression rate. Please make sure you keep this style if you plan to extend the library.
 
 ## Building the library
 
@@ -350,7 +341,7 @@ npm run build
 
 ## Run a test
 
-Testing the source against the shipped test suite is as easy as
+For testing I use Node js native test runner.
 
 ```
 npm run test

@@ -1,38 +1,11 @@
 {
-    "name": "complex.js",
-    "title": "Complex.js",
+    "name": "complex.ts",
+    "title": "complex.ts",
     "version": "2.4.2",
     "type": "module",
-    "homepage": "https://raw.org/article/complex-numbers-in-javascript/",
-    "bugs": "https://github.com/rawify/Complex.js/issues",
-    "description": "The RAW complex numbers library",
-    "keywords": [
-        "complex numbers",
-        "math",
-        "complex",
-        "number",
-        "calculus",
-        "parser",
-        "arithmetic"
-    ],
-    "private": false,
+    "description": "complex numbers library",
     "main": "./dist/complex.js",
-    "module": "./dist/complex.mjs",
-    "types": "./complex.d.ts",
-    "browser": "./dist/complex.min.js",
     "unpkg": "./dist/complex.min.js",
-    "readmeFilename": "README.md",
-    "exports": {
-        ".": {
-            "types": "./complex.d.ts",
-            "require": "./dist/complex.js",
-            "import": "./dist/complex.mjs"
-        }
-    },
-    "repository": {
-        "type": "git",
-        "url": "git@github.com:rawify/Complex.js.git"
-    },
     "funding": {
         "type": "github",
         "url": "https://github.com/sponsors/rawify"
@@ -41,6 +14,11 @@
         "name": "Robert Eisele",
         "email": "robert@raw.org",
         "url": "https://raw.org/"
+    },
+    "contributors": {
+        "name": "jonesangga",
+        "email": "jonesangga@proton.me",
+        "url": "https://github.com/jonesangga"
     },
     "license": "MIT",
     "engines": {
