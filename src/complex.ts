@@ -35,6 +35,19 @@
  */
 
 
+type AValue =
+  | Complex
+  | { im: number; re: number }
+  | { abs: number; arg: number }
+  | { r: number; phi: number }
+  | [number, number]
+  | string
+  | number
+  | null
+  | undefined;
+
+type BValue = number;
+
 const cosh = Math.cosh || function (x) {
     return Math.abs(x) < 1e-9 ? 1 - x : (Math.exp(x) + Math.exp(-x)) * 0.5;
 };
@@ -43,14 +56,8 @@ const sinh = Math.sinh || function (x) {
     return Math.abs(x) < 1e-9 ? x : (Math.exp(x) - Math.exp(-x)) * 0.5;
 };
 
-/**
- * Calculates cos(x) - 1 using Taylor series if x is small (-¼π ≤ x ≤ ¼π).
- *
- * @param {number} x
- * @returns {number} cos(x) - 1
- */
-const cosm1 = function (x) {
-
+// Calculates cos(x) - 1 using Taylor series if x is small (-¼π ≤ x ≤ ¼π).
+function cosm1(x: number): number {
     const b = Math.PI / 4;
     if (-b > x || x > b) {
         return Math.cos(x) - 1.0;
@@ -86,8 +93,7 @@ const cosm1 = function (x) {
         - 1 / 2);
 };
 
-const hypot = function (x, y) {
-
+function hypot(x: number, y: number): number {
     x = Math.abs(x);
     y = Math.abs(y);
 
@@ -102,19 +108,8 @@ const hypot = function (x, y) {
     return x * Math.sqrt(1 + y * y);
 };
 
-const parser_exit = function () {
-    throw SyntaxError('Invalid Param');
-};
-
-/**
- * Calculates log(sqrt(a^2+b^2)) in a way to avoid overflows
- *
- * @param {number} a
- * @param {number} b
- * @returns {number}
- */
-function logHypot(a, b) {
-
+// Calculates log(sqrt(a^2 + b^2)) in a way to avoid overflows
+function logHypot(a: number, b: number): number {
     const _a = Math.abs(a);
     const _b = Math.abs(b);
 
@@ -168,38 +163,48 @@ function logHypot(a, b) {
     return 0.5 * Math.log(a * a + b * b) + Math.LN2;
 }
 
-const P = { 're': 0, 'im': 0 };
-const parse = function (a, b) {
-    const z = P;
+function parser_exit() {
+    throw SyntaxError('Invalid Param');
+};
+
+function parse(a: AValue, b?: BValue) {
+    const z = {re: 0, im: 0};
 
     if (a === undefined || a === null) {
-        z['re'] = z['im'] = 0;
+            z.re = 0;
+            z.im = 0;
     }
-    else if (b !== undefined) {
-        z['re'] = a;
-        z['im'] = b;
+    else if (typeof b === "number") {
+        if (typeof a === "number") {
+            z.re = a;
+            z.im = b;
+        }
+        else {
+            z.re = NaN;
+            z.im = NaN;
+        }
     }
     else {
         switch (typeof a) {
             case 'object': {
                 if ('im' in a && 're' in a) {
-                    z['re'] = a['re'];
-                    z['im'] = a['im'];
+                    z.re = a.re;
+                    z.im = a.im;
                 } else if ('abs' in a && 'arg' in a) {
                     if (!isFinite(a['abs']) && isFinite(a['arg'])) {
                         return Complex['INFINITY'];
                     }
-                    z['re'] = a['abs'] * Math.cos(a['arg']);
-                    z['im'] = a['abs'] * Math.sin(a['arg']);
+                    z.re = a['abs'] * Math.cos(a['arg']);
+                    z.im = a['abs'] * Math.sin(a['arg']);
                 } else if ('r' in a && 'phi' in a) {
                     if (!isFinite(a['r']) && isFinite(a['phi'])) {
                         return Complex['INFINITY'];
                     }
-                    z['re'] = a['r'] * Math.cos(a['phi']);
-                    z['im'] = a['r'] * Math.sin(a['phi']);
+                    z.re = a['r'] * Math.cos(a['phi']);
+                    z.im = a['r'] * Math.sin(a['phi']);
                 } else if (a.length === 2) { // Quick array check
-                    z['re'] = a[0];
-                    z['im'] = a[1];
+                    z.re = a[0];
+                    z.im = a[1];
                 } else {
                     parser_exit();
                 }
@@ -207,8 +212,8 @@ const parse = function (a, b) {
             }
 
             case 'string': {
-                z['im'] = /* void */
-                z['re'] = 0;
+                z.im = /* void */
+                z.re = 0;
 
                 const tokens = a.replace(/_/g, '')
                     .match(/\d+\.?\d*e[+-]?\d+|\d+\.?\d*|\.\d+|./g);
@@ -234,10 +239,10 @@ const parse = function (a, b) {
                             }
 
                             if (tokens[i + 1] !== ' ' && !isNaN(parseInt(tokens[i + 1]))) {
-                                z['im'] += parseFloat((minus % 2 ? '-' : '') + tokens[i + 1]);
+                                z.im += parseFloat((minus % 2 ? '-' : '') + tokens[i + 1]);
                                 i++;
                             } else {
-                                z['im'] += parseFloat((minus % 2 ? '-' : '') + '1');
+                                z.im += parseFloat((minus % 2 ? '-' : '') + '1');
                             }
                             plus = minus = 0;
 
@@ -247,10 +252,10 @@ const parse = function (a, b) {
                             }
 
                             if (tokens[i + 1] === 'i' || tokens[i + 1] === 'I') {
-                                z['im'] += parseFloat((minus % 2 ? '-' : '') + c);
+                                z.im += parseFloat((minus % 2 ? '-' : '') + c);
                                 i++;
                             } else {
-                                z['re'] += parseFloat((minus % 2 ? '-' : '') + c);
+                                z.re += parseFloat((minus % 2 ? '-' : '') + c);
                             }
                             plus = minus = 0;
                         }
@@ -265,8 +270,8 @@ const parse = function (a, b) {
             }
 
             case 'number': {
-                z['im'] = 0;
-                z['re'] = a;
+                z.im = 0;
+                z.re = a;
                 break;
             }
 
@@ -275,61 +280,48 @@ const parse = function (a, b) {
         }
     }
 
-    if (isNaN(z['re']) || isNaN(z['im'])) {
-        // If a calculation is NaN, we treat it as NaN and don't throw
+    // NOTE: If a calculation is NaN, we treat it as NaN and don't throw
+    // if (isNaN(z.re) || isNaN(z.im)) {
         //parser_exit();
-    }
+    // }
 
     return z;
 };
 
-type AValue =
-  | Complex
-  | { im: number; re: number }
-  | { abs: number; arg: number }
-  | { r: number; phi: number }
-  | [number, number]
-  | string
-  | number
-
-type BValue = number;
-
 export class Complex {
+    static ZERO     = new Complex(0, 0);
+    static ONE      = new Complex(1, 0);
+    static I        = new Complex(0, 1);
+    static PI       = new Complex(Math.PI, 0);
+    static E        = new Complex(Math.E, 0);
+    static INFINITY = new Complex(Infinity, Infinity);
+    static NAN      = new Complex(NaN, NaN);
+    static EPSILON  = 1e-15;
+
     re: number;
     im: number;
 
     constructor(a: AValue, b?: BValue) {
         const z = parse(a, b);
 
-        this['re'] = z['re'];
-        this['im'] = z['im'];
+        this.re = z.re;
+        this.im = z.im;
     }
 
-    /**
-     * Calculates the sign of a complex number, which is a normalized complex
-     *
-     * @returns {Complex}
-     */
-    sign() {
-
-        const abs = hypot(this['re'], this['im']);
+    // Calculates the sign of a complex number, which is a normalized complex
+    sign(): Complex {
+        const abs = hypot(this.re, this.im);
 
         return new Complex(
-            this['re'] / abs,
-            this['im'] / abs);
+            this.re / abs,
+            this.im / abs);
     }
 
-    /**
-     * Adds two complex numbers
-     *
-     * @returns {Complex}
-     */
-    add(a, b) {
-
+    add(a: AValue, b?: BValue): Complex {
         const z = parse(a, b);
 
         const tInfin = this['isInfinite']();
-        const zInfin = !(isFinite(z['re']) && isFinite(z['im']));
+        const zInfin = !(isFinite(z.re) && isFinite(z.im));
 
         if (tInfin || zInfin) {
 
@@ -342,21 +334,15 @@ export class Complex {
         }
 
         return new Complex(
-            this['re'] + z['re'],
-            this['im'] + z['im']);
+            this.re + z.re,
+            this.im + z.im);
     }
 
-    /**
-     * Subtracts two complex numbers
-     *
-     * @returns {Complex}
-     */
-    sub(a, b) {
-
+    sub(a: AValue, b?: BValue): Complex {
         const z = parse(a, b);
 
         const tInfin = this['isInfinite']();
-        const zInfin = !(isFinite(z['re']) && isFinite(z['im']));
+        const zInfin = !(isFinite(z.re) && isFinite(z.im));
 
         if (tInfin || zInfin) {
 
@@ -369,23 +355,17 @@ export class Complex {
         }
 
         return new Complex(
-            this['re'] - z['re'],
-            this['im'] - z['im']);
+            this.re - z.re,
+            this.im - z.im);
     }
 
-    /**
-     * Multiplies two complex numbers
-     *
-     * @returns {Complex}
-     */
-    mul(a, b) {
-
+    mul(a: AValue, b?: BValue): Complex {
         const z = parse(a, b);
 
         const tInfin = this['isInfinite']();
-        const zInfin = !(isFinite(z['re']) && isFinite(z['im']));
-        const tIsZero = this['re'] === 0 && this['im'] === 0;
-        const zIsZero = z['re'] === 0 && z['im'] === 0;
+        const zInfin = !(isFinite(z.re) && isFinite(z.im));
+        const tIsZero = this.re === 0 && this.im === 0;
+        const zIsZero = z.re === 0 && z.im === 0;
 
         // Infinity * 0 = NaN
         if (tInfin && zIsZero || zInfin && tIsZero) {
@@ -398,28 +378,22 @@ export class Complex {
         }
 
         // Shortcut for real values
-        if (z['im'] === 0 && this['im'] === 0) {
-            return new Complex(this['re'] * z['re'], 0);
+        if (z.im === 0 && this.im === 0) {
+            return new Complex(this.re * z.re, 0);
         }
 
         return new Complex(
-            this['re'] * z['re'] - this['im'] * z['im'],
-            this['re'] * z['im'] + this['im'] * z['re']);
+            this.re * z.re - this.im * z.im,
+            this.re * z.im + this.im * z.re);
     }
 
-    /**
-     * Divides two complex numbers
-     *
-     * @returns {Complex}
-     */
-    div(a, b) {
-
+    div(a: AValue, b?: BValue): Complex {
         const z = parse(a, b);
 
         const tInfin = this['isInfinite']();
-        const zInfin = !(isFinite(z['re']) && isFinite(z['im']));
-        const tIsZero = this['re'] === 0 && this['im'] === 0;
-        const zIsZero = z['re'] === 0 && z['im'] === 0;
+        const zInfin = !(isFinite(z.re) && isFinite(z.im));
+        const tIsZero = this.re === 0 && this.im === 0;
+        const zIsZero = z.re === 0 && z.im === 0;
 
         // 0 / 0 = NaN and Infinity / Infinity = NaN
         if (tIsZero && zIsZero || tInfin && zInfin) {
@@ -436,65 +410,60 @@ export class Complex {
             return Complex['ZERO'];
         }
 
-        if (0 === z['im']) {
+        if (0 === z.im) {
             // Divisor is real
-            return new Complex(this['re'] / z['re'], this['im'] / z['re']);
+            return new Complex(this.re / z.re, this.im / z.re);
         }
 
-        if (Math.abs(z['re']) < Math.abs(z['im'])) {
+        if (Math.abs(z.re) < Math.abs(z.im)) {
 
-            const x = z['re'] / z['im'];
-            const t = z['re'] * x + z['im'];
+            const x = z.re / z.im;
+            const t = z.re * x + z.im;
 
             return new Complex(
-                (this['re'] * x + this['im']) / t,
-                (this['im'] * x - this['re']) / t);
+                (this.re * x + this.im) / t,
+                (this.im * x - this.re) / t);
 
         } else {
 
-            const x = z['im'] / z['re'];
-            const t = z['im'] * x + z['re'];
+            const x = z.im / z.re;
+            const t = z.im * x + z.re;
 
             return new Complex(
-                (this['re'] + this['im'] * x) / t,
-                (this['im'] - this['re'] * x) / t);
+                (this.re + this.im * x) / t,
+                (this.im - this.re * x) / t);
         }
     }
 
-    /**
-     * Calculate the power of two complex numbers
-     *
-     * @returns {Complex}
-     */
-    pow(a, b) {
-
+    // Calculate the power of two complex numbers
+    pow(a: AValue, b?: BValue): Complex {
         const z = parse(a, b);
 
-        const tIsZero = this['re'] === 0 && this['im'] === 0;
-        const zIsZero = z['re'] === 0 && z['im'] === 0;
+        const tIsZero = this.re === 0 && this.im === 0;
+        const zIsZero = z.re === 0 && z.im === 0;
 
         if (zIsZero) {
             return Complex['ONE'];
         }
 
         // If the exponent is real
-        if (z['im'] === 0) {
+        if (z.im === 0) {
 
-            if (this['im'] === 0 && this['re'] > 0) {
+            if (this.im === 0 && this.re > 0) {
 
-                return new Complex(Math.pow(this['re'], z['re']), 0);
+                return new Complex(Math.pow(this.re, z.re), 0);
 
-            } else if (this['re'] === 0) { // If base is fully imaginary
+            } else if (this.re === 0) { // If base is fully imaginary
 
-                switch ((z['re'] % 4 + 4) % 4) {
+                switch ((z.re % 4 + 4) % 4) {
                     case 0:
-                        return new Complex(Math.pow(this['im'], z['re']), 0);
+                        return new Complex(Math.pow(this.im, z.re), 0);
                     case 1:
-                        return new Complex(0, Math.pow(this['im'], z['re']));
+                        return new Complex(0, Math.pow(this.im, z.re));
                     case 2:
-                        return new Complex(-Math.pow(this['im'], z['re']), 0);
+                        return new Complex(-Math.pow(this.im, z.re), 0);
                     case 3:
-                        return new Complex(0, -Math.pow(this['im'], z['re']));
+                        return new Complex(0, -Math.pow(this.im, z.re));
                 }
             }
         }
@@ -518,29 +487,23 @@ export class Complex {
          *
          */
 
-        if (tIsZero && z['re'] > 0) { // Same behavior as Wolframalpha, Zero if real part is zero
+        if (tIsZero && z.re > 0) { // Same behavior as Wolframalpha, Zero if real part is zero
             return Complex['ZERO'];
         }
 
-        const arg = Math.atan2(this['im'], this['re']);
-        const loh = logHypot(this['re'], this['im']);
+        const arg = Math.atan2(this.im, this.re);
+        const loh = logHypot(this.re, this.im);
 
-        let re = Math.exp(z['re'] * loh - z['im'] * arg);
-        let im = z['im'] * loh + z['re'] * arg;
+        const re = Math.exp(z.re * loh - z.im * arg);
+        const im = z.im * loh + z.re * arg;
         return new Complex(
             re * Math.cos(im),
             re * Math.sin(im));
     }
 
-    /**
-     * Calculate the complex square root
-     *
-     * @returns {Complex}
-     */
-    sqrt() {
-
-        const a = this['re'];
-        const b = this['im'];
+    sqrt(): Complex {
+        const a = this.re;
+        const b = this.im;
 
         if (b === 0) {
             // Real number case
@@ -553,8 +516,8 @@ export class Complex {
 
         const r = hypot(a, b);
 
-        let re = Math.sqrt(0.5 * (r + Math.abs(a))); // sqrt(2x) / 2 = sqrt(x / 2)
-        let im = Math.abs(b) / (2 * re);
+        const re = Math.sqrt(0.5 * (r + Math.abs(a))); // sqrt(2x) / 2 = sqrt(x / 2)
+        const im = Math.abs(b) / (2 * re);
 
         if (a >= 0) {
             return new Complex(re, b < 0 ? -im : im);
@@ -563,41 +526,28 @@ export class Complex {
         }
     }
 
-    /**
-     * Calculate the complex exponent
-     *
-     * @returns {Complex}
-     */
-    exp() {
+    exp(): Complex {
+        const er = Math.exp(this.re);
 
-        const er = Math.exp(this['re']);
-
-        if (this['im'] === 0) {
+        if (this.im === 0) {
             return new Complex(er, 0);
         }
         return new Complex(
-            er * Math.cos(this['im']),
-            er * Math.sin(this['im']));
+            er * Math.cos(this.im),
+            er * Math.sin(this.im));
     }
 
-    /**
-     * Calculate the complex exponent and subtracts one.
-     *
-     * This may be more accurate than `Complex(x).exp().sub(1)` if
-     * `x` is small.
-     *
-     * @returns {Complex}
-     */
-    expm1() {
-
+    // Calculate the complex exponent and subtracts one.
+    // This may be more accurate than `Complex(x).exp().sub(1)` if `x` is small.
+    expm1(): Complex {
         /**
          * exp(a + i*b) - 1
      = exp(a) * (cos(b) + j*sin(b)) - 1
      = expm1(a)*cos(b) + cosm1(b) + j*exp(a)*sin(b)
      */
 
-        const a = this['re'];
-        const b = this['im'];
+        const a = this.re;
+        const b = this.im;
 
         return new Complex(
             Math.expm1(a) * Math.cos(b) + cosm1(b),
@@ -605,10 +555,9 @@ export class Complex {
     }
 
     // Calculate the natural log
-    log() {
-
-        const a = this['re'];
-        const b = this['im'];
+    log(): Complex {
+        const a = this.re;
+        const b = this.im;
 
         if (b === 0 && a > 0) {
             return new Complex(Math.log(a), 0);
@@ -619,76 +568,48 @@ export class Complex {
             Math.atan2(b, a));
     }
 
-    /**
-     * Calculate the magnitude of the complex number
-     *
-     * @returns {number}
-     */
+    // Calculate the magnitude of the complex number
     abs() {
-
-        return hypot(this['re'], this['im']);
+        return hypot(this.re, this.im);
     }
 
-    /**
-     * Calculate the angle of the complex number
-     *
-     * @returns {number}
-     */
+    // Calculate the angle of the complex number
     arg() {
-
-        return Math.atan2(this['im'], this['re']);
+        return Math.atan2(this.im, this.re);
     }
 
-    /**
-     * Calculate the sine of the complex number
-     *
-     * @returns {Complex}
-     */
-    sin() {
-
+    sin(): Complex {
         // sin(z) = ( e^iz - e^-iz ) / 2i 
         //        = sin(a)cosh(b) + i cos(a)sinh(b)
 
-        const a = this['re'];
-        const b = this['im'];
+        const a = this.re;
+        const b = this.im;
 
         return new Complex(
             Math.sin(a) * cosh(b),
             Math.cos(a) * sinh(b));
     }
 
-    /**
-     * Calculate the cosine
-     *
-     * @returns {Complex}
-     */
-    cos() {
-
+    cos(): Complex {
         // cos(z) = ( e^iz + e^-iz ) / 2 
         //        = cos(a)cosh(b) - i sin(a)sinh(b)
 
-        const a = this['re'];
-        const b = this['im'];
+        const a = this.re;
+        const b = this.im;
 
         return new Complex(
             Math.cos(a) * cosh(b),
             -Math.sin(a) * sinh(b));
     }
 
-    /**
-     * Calculate the tangent
-     *
-     * @returns {Complex}
-     */
-    tan() {
-
+    tan(): Complex {
         // tan(z) = sin(z) / cos(z) 
         //        = ( e^iz - e^-iz ) / ( i( e^iz + e^-iz ) )
         //        = ( e^2iz - 1 ) / i( e^2iz + 1 )
         //        = ( sin(2a) + i sinh(2b) ) / ( cos(2a) + cosh(2b) )
 
-        const a = 2 * this['re'];
-        const b = 2 * this['im'];
+        const a = 2 * this.re;
+        const b = 2 * this.im;
         const d = Math.cos(a) + cosh(b);
 
         return new Complex(
@@ -696,17 +617,11 @@ export class Complex {
             sinh(b) / d);
     }
 
-    /**
-     * Calculate the cotangent
-     *
-     * @returns {Complex}
-     */
-    cot() {
-
+    cot(): Complex {
         // cot(c) = i(e^(ci) + e^(-ci)) / (e^(ci) - e^(-ci))
 
-        const a = 2 * this['re'];
-        const b = 2 * this['im'];
+        const a = 2 * this.re;
+        const b = 2 * this.im;
         const d = Math.cos(a) - cosh(b);
 
         return new Complex(
@@ -714,17 +629,11 @@ export class Complex {
             sinh(b) / d);
     }
 
-    /**
-     * Calculate the secant
-     *
-     * @returns {Complex}
-     */
-    sec() {
-
+    sec(): Complex {
         // sec(c) = 2 / (e^(ci) + e^(-ci))
 
-        const a = this['re'];
-        const b = this['im'];
+        const a = this.re;
+        const b = this.im;
         const d = 0.5 * cosh(2 * b) + 0.5 * Math.cos(2 * a);
 
         return new Complex(
@@ -732,17 +641,11 @@ export class Complex {
             Math.sin(a) * sinh(b) / d);
     }
 
-    /**
-     * Calculate the cosecans
-     *
-     * @returns {Complex}
-     */
-    csc() {
-
+    csc(): Complex {
         // csc(c) = 2i / (e^(ci) - e^(-ci))
 
-        const a = this['re'];
-        const b = this['im'];
+        const a = this.re;
+        const b = this.im;
         const d = 0.5 * cosh(2 * b) - 0.5 * Math.cos(2 * a);
 
         return new Complex(
@@ -750,63 +653,45 @@ export class Complex {
             -Math.cos(a) * sinh(b) / d);
     }
 
-    /**
-     * Calculate the complex arcus sinus
-     *
-     * @returns {Complex}
-     */
-    asin() {
-
+    asin(): Complex {
         // asin(c) = -i * log(ci + sqrt(1 - c^2))
 
-        const a = this['re'];
-        const b = this['im'];
+        const a = this.re;
+        const b = this.im;
 
         const t1 = new Complex(
             b * b - a * a + 1,
             -2 * a * b)['sqrt']();
 
         const t2 = new Complex(
-            t1['re'] - b,
-            t1['im'] + a)['log']();
+            t1.re - b,
+            t1.im + a)['log']();
 
-        return new Complex(t2['im'], -t2['re']);
+        return new Complex(t2.im, -t2.re);
     }
 
-    /**
-     * Calculate the complex arcus cosinus
-     *
-     * @returns {Complex}
-     */
-    acos() {
-
+    acos(): Complex {
         // acos(c) = i * log(c - i * sqrt(1 - c^2))
 
-        const a = this['re'];
-        const b = this['im'];
+        const a = this.re;
+        const b = this.im;
 
         const t1 = new Complex(
             b * b - a * a + 1,
             -2 * a * b)['sqrt']();
 
         const t2 = new Complex(
-            t1['re'] - b,
-            t1['im'] + a)['log']();
+            t1.re - b,
+            t1.im + a)['log']();
 
-        return new Complex(Math.PI / 2 - t2['im'], t2['re']);
+        return new Complex(Math.PI / 2 - t2.im, t2.re);
     }
 
-    /**
-     * Calculate the complex arcus tangent
-     *
-     * @returns {Complex}
-     */
-    atan() {
-
+    atan(): Complex {
         // atan(c) = i / 2 log((i + x) / (i - x))
 
-        const a = this['re'];
-        const b = this['im'];
+        const a = this.re;
+        const b = this.im;
 
         if (a === 0) {
 
@@ -825,20 +710,14 @@ export class Complex {
             (1 - b * b - a * a) / d,
             -2 * a / d).log();
 
-        return new Complex(-0.5 * t1['im'], 0.5 * t1['re']);
+        return new Complex(-0.5 * t1.im, 0.5 * t1.re);
     }
 
-    /**
-     * Calculate the complex arcus cotangent
-     *
-     * @returns {Complex}
-     */
-    acot() {
-
+    acot(): Complex {
         // acot(c) = i / 2 log((c - i) / (c + i))
 
-        const a = this['re'];
-        const b = this['im'];
+        const a = this.re;
+        const b = this.im;
 
         if (b === 0) {
             return new Complex(Math.atan2(1, a), 0);
@@ -854,17 +733,11 @@ export class Complex {
                 (b !== 0) ? -b / 0 : 0).atan();
     }
 
-    /**
-     * Calculate the complex arcus secant
-     *
-     * @returns {Complex}
-     */
-    asec() {
-
+    asec(): Complex {
         // asec(c) = -i * log(1 / c + sqrt(1 - i / c^2))
 
-        const a = this['re'];
-        const b = this['im'];
+        const a = this.re;
+        const b = this.im;
 
         if (a === 0 && b === 0) {
             return new Complex(0, Infinity);
@@ -880,17 +753,11 @@ export class Complex {
                 (b !== 0) ? -b / 0 : 0).acos();
     }
 
-    /**
-     * Calculate the complex arcus cosecans
-     *
-     * @returns {Complex}
-     */
-    acsc() {
-
+    acsc(): Complex {
         // acsc(c) = -i * log(i / c + sqrt(1 - 1 / c^2))
 
-        const a = this['re'];
-        const b = this['im'];
+        const a = this.re;
+        const b = this.im;
 
         if (a === 0 && b === 0) {
             return new Complex(Math.PI / 2, Infinity);
@@ -906,51 +773,33 @@ export class Complex {
                 (b !== 0) ? -b / 0 : 0).asin();
     }
 
-    /**
-     * Calculate the complex sinh
-     *
-     * @returns {Complex}
-     */
-    sinh() {
-
+    sinh(): Complex {
         // sinh(c) = (e^c - e^-c) / 2
 
-        const a = this['re'];
-        const b = this['im'];
+        const a = this.re;
+        const b = this.im;
 
         return new Complex(
             sinh(a) * Math.cos(b),
             cosh(a) * Math.sin(b));
     }
 
-    /**
-     * Calculate the complex cosh
-     *
-     * @returns {Complex}
-     */
     cosh() {
-
         // cosh(c) = (e^c + e^-c) / 2
 
-        const a = this['re'];
-        const b = this['im'];
+        const a = this.re;
+        const b = this.im;
 
         return new Complex(
             cosh(a) * Math.cos(b),
             sinh(a) * Math.sin(b));
     }
 
-    /**
-     * Calculate the complex tanh
-     *
-     * @returns {Complex}
-     */
-    tanh() {
-
+    tanh(): Complex {
         // tanh(c) = (e^c - e^-c) / (e^c + e^-c)
 
-        const a = 2 * this['re'];
-        const b = 2 * this['im'];
+        const a = 2 * this.re;
+        const b = 2 * this.im;
         const d = cosh(a) + Math.cos(b);
 
         return new Complex(
@@ -958,17 +807,11 @@ export class Complex {
             Math.sin(b) / d);
     }
 
-    /**
-     * Calculate the complex coth
-     *
-     * @returns {Complex}
-     */
-    coth() {
-
+    coth(): Complex {
         // coth(c) = (e^c + e^-c) / (e^c - e^-c)
 
-        const a = 2 * this['re'];
-        const b = 2 * this['im'];
+        const a = 2 * this.re;
+        const b = 2 * this.im;
         const d = cosh(a) - Math.cos(b);
 
         return new Complex(
@@ -976,17 +819,11 @@ export class Complex {
             -Math.sin(b) / d);
     }
 
-    /**
-     * Calculate the complex coth
-     *
-     * @returns {Complex}
-     */
-    csch() {
-
+    csch(): Complex {
         // csch(c) = 2 / (e^c - e^-c)
 
-        const a = this['re'];
-        const b = this['im'];
+        const a = this.re;
+        const b = this.im;
         const d = Math.cos(2 * b) - cosh(2 * a);
 
         return new Complex(
@@ -994,17 +831,11 @@ export class Complex {
             2 * cosh(a) * Math.sin(b) / d);
     }
 
-    /**
-     * Calculate the complex sech
-     *
-     * @returns {Complex}
-     */
     sech() {
-
         // sech(c) = 2 / (e^c + e^-c)
 
-        const a = this['re'];
-        const b = this['im'];
+        const a = this.re;
+        const b = this.im;
         const d = Math.cos(2 * b) + cosh(2 * a);
 
         return new Complex(
@@ -1012,62 +843,44 @@ export class Complex {
             -2 * sinh(a) * Math.sin(b) / d);
     }
 
-    /**
-     * Calculate the complex asinh
-     *
-     * @returns {Complex}
-     */
-    asinh() {
-
+    asinh(): Complex {
         // asinh(c) = log(c + sqrt(c^2 + 1))
 
-        let tmp = this['im'];
-        this['im'] = -this['re'];
-        this['re'] = tmp;
+        let tmp = this.im;
+        this.im = -this.re;
+        this.re = tmp;
         const res = this['asin']();
 
-        this['re'] = -this['im'];
-        this['im'] = tmp;
-        tmp = res['re'];
+        this.re = -this.im;
+        this.im = tmp;
+        tmp = res.re;
 
-        res['re'] = -res['im'];
-        res['im'] = tmp;
+        res.re = -res.im;
+        res.im = tmp;
         return res;
     }
 
-    /**
-     * Calculate the complex acosh
-     *
-     * @returns {Complex}
-     */
-    acosh() {
-
+    acosh(): Complex {
         // acosh(c) = log(c + sqrt(c^2 - 1))
 
         const res = this['acos']();
-        if (res['im'] <= 0) {
-            const tmp = res['re'];
-            res['re'] = -res['im'];
-            res['im'] = tmp;
+        if (res.im <= 0) {
+            const tmp = res.re;
+            res.re = -res.im;
+            res.im = tmp;
         } else {
-            const tmp = res['im'];
-            res['im'] = -res['re'];
-            res['re'] = tmp;
+            const tmp = res.im;
+            res.im = -res.re;
+            res.re = tmp;
         }
         return res;
     }
 
-    /**
-     * Calculate the complex atanh
-     *
-     * @returns {Complex}
-     */
-    atanh() {
-
+    atanh(): Complex {
         // atanh(c) = log((1+c) / (1-c)) / 2
 
-        const a = this['re'];
-        const b = this['im'];
+        const a = this.re;
+        const b = this.im;
 
         const noIM = a > 1 && b === 0;
         const oneMinus = 1 - a;
@@ -1082,26 +895,20 @@ export class Complex {
                 (a !== -1) ? (a / 0) : 0,
                 (b !== 0) ? (b / 0) : 0);
 
-        const temp = x['re'];
-        x['re'] = logHypot(x['re'], x['im']) / 2;
-        x['im'] = Math.atan2(x['im'], temp) / 2;
+        const temp = x.re;
+        x.re = logHypot(x.re, x.im) / 2;
+        x.im = Math.atan2(x.im, temp) / 2;
         if (noIM) {
-            x['im'] = -x['im'];
+            x.im = -x.im;
         }
         return x;
     }
 
-    /**
-     * Calculate the complex acoth
-     *
-     * @returns {Complex}
-     */
-    acoth() {
-
+    acoth(): Complex {
         // acoth(c) = log((c+1) / (c-1)) / 2
 
-        const a = this['re'];
-        const b = this['im'];
+        const a = this.re;
+        const b = this.im;
 
         if (a === 0 && b === 0) {
             return new Complex(0, Math.PI / 2);
@@ -1117,17 +924,11 @@ export class Complex {
                 (b !== 0) ? -b / 0 : 0).atanh();
     }
 
-    /**
-     * Calculate the complex acsch
-     *
-     * @returns {Complex}
-     */
-    acsch() {
-
+    acsch(): Complex {
         // acsch(c) = log((1+sqrt(1+c^2))/c)
 
-        const a = this['re'];
-        const b = this['im'];
+        const a = this.re;
+        const b = this.im;
 
         if (b === 0) {
 
@@ -1147,17 +948,11 @@ export class Complex {
                 (b !== 0) ? -b / 0 : 0).asinh();
     }
 
-    /**
-     * Calculate the complex asech
-     *
-     * @returns {Complex}
-     */
-    asech() {
-
+    asech(): Complex {
         // asech(c) = log((1+sqrt(1-c^2))/c)
 
-        const a = this['re'];
-        const b = this['im'];
+        const a = this.re;
+        const b = this.im;
 
         if (this['isZero']()) {
             return Complex['INFINITY'];
@@ -1173,13 +968,8 @@ export class Complex {
                 (b !== 0) ? -b / 0 : 0).acosh();
     }
 
-    /**
-     * Calculate the complex inverse 1/z
-     *
-     * @returns {Complex}
-     */
-    inverse() {
-
+    // Calculate the complex inverse 1/z
+    inverse(): Complex {
         // 1 / 0 = Infinity and 1 / Infinity = 0
         if (this['isZero']()) {
             return Complex['INFINITY'];
@@ -1189,110 +979,64 @@ export class Complex {
             return Complex['ZERO'];
         }
 
-        const a = this['re'];
-        const b = this['im'];
+        const a = this.re;
+        const b = this.im;
 
         const d = a * a + b * b;
 
         return new Complex(a / d, -b / d);
     }
 
-    /**
-     * Returns the complex conjugate
-     *
-     * @returns {Complex}
-     */
-    conjugate() {
-
-        return new Complex(this['re'], -this['im']);
+    conjugate(): Complex {
+        return new Complex(this.re, -this.im);
     }
 
-    /**
-     * Gets the negated complex number
-     *
-     * @returns {Complex}
-     */
-    neg() {
-
-        return new Complex(-this['re'], -this['im']);
+    // Gets the negated complex number
+    neg(): Complex {
+        return new Complex(-this.re, -this.im);
     }
 
-    /**
-     * Ceils the actual complex number
-     *
-     * @returns {Complex}
-     */
-    ceil(places) {
-
+    ceil(places: number): Complex {
         places = Math.pow(10, places || 0);
 
         return new Complex(
-            Math.ceil(this['re'] * places) / places,
-            Math.ceil(this['im'] * places) / places);
+            Math.ceil(this.re * places) / places,
+            Math.ceil(this.im * places) / places);
     }
 
-    /**
-     * Floors the actual complex number
-     *
-     * @returns {Complex}
-     */
-    floor(places) {
-
+    floor(places: number): Complex {
         places = Math.pow(10, places || 0);
 
         return new Complex(
-            Math.floor(this['re'] * places) / places,
-            Math.floor(this['im'] * places) / places);
+            Math.floor(this.re * places) / places,
+            Math.floor(this.im * places) / places);
     }
 
-    /**
-     * Ceils the actual complex number
-     *
-     * @returns {Complex}
-     */
-    round(places) {
-
+    round(places: number): Complex {
         places = Math.pow(10, places || 0);
 
         return new Complex(
-            Math.round(this['re'] * places) / places,
-            Math.round(this['im'] * places) / places);
+            Math.round(this.re * places) / places,
+            Math.round(this.im * places) / places);
     }
 
-    /**
-     * Compares two complex numbers
-     *
-     * **Note:** new Complex(Infinity).equals(Infinity) === false
-     *
-     * @returns {boolean}
-     */
-    equals(a, b) {
-
+    // Compares two complex numbers
+    // Note: new Complex(Infinity).equals(Infinity) === false
+    equals(a: AValue, b?: BValue): boolean {
         const z = parse(a, b);
 
-        return Math.abs(z['re'] - this['re']) <= Complex['EPSILON'] &&
-            Math.abs(z['im'] - this['im']) <= Complex['EPSILON'];
+        return Math.abs(z.re - this.re) <= Complex.EPSILON &&
+            Math.abs(z.im - this.im) <= Complex.EPSILON;
     }
 
-    /**
-     * Clones the actual object
-     *
-     * @returns {Complex}
-     */
-    clone() {
-
-        return new Complex(this['re'], this['im']);
+    clone(): Complex {
+        return new Complex(this.re, this.im);
     }
 
-    /**
-     * Gets a string of the actual complex number
-     *
-     * @returns {string}
-     */
-    toString() {
-
-        let a = this['re'];
-        let b = this['im'];
+    // Gets a string of the actual complex number
+    toString(): string {
+        let a = this.re;
+        let b = this.im;
         let ret = "";
 
         if (this['isNaN']()) {
@@ -1303,11 +1047,11 @@ export class Complex {
             return 'Infinity';
         }
 
-        if (Math.abs(a) < Complex['EPSILON']) {
+        if (Math.abs(a) < Complex.EPSILON) {
             a = 0;
         }
 
-        if (Math.abs(b) < Complex['EPSILON']) {
+        if (Math.abs(b) < Complex.EPSILON) {
             b = 0;
         }
 
@@ -1337,74 +1081,37 @@ export class Complex {
         return ret + "i";
     }
 
-    /**
-     * Returns the actual number as a vector
-     *
-     * @returns {Array}
-     */
-    toVector() {
-
-        return [this['re'], this['im']];
+    // Returns the actual number as a vector
+    toVector(): [number, number] {
+        return [this.re, this.im];
     }
 
-    /**
-     * Returns the actual real value of the current object
-     *
-     * @returns {number|null}
-     */
-    valueOf() {
+    // Returns the actual real value of the current object
+    valueOf(): number | null {
 
-        if (this['im'] === 0) {
-            return this['re'];
+        if (this.im === 0) {
+            return this.re;
         }
         return null;
     }
 
-    /**
-     * Determines whether a complex number is not on the Riemann sphere.
-     *
-     * @returns {boolean}
-     */
-    isNaN() {
-        return isNaN(this['re']) || isNaN(this['im']);
+    // Determines whether a complex number is not on the Riemann sphere.
+    isNaN(): boolean {
+        return isNaN(this.re) || isNaN(this.im);
     }
 
-    /**
-     * Determines whether or not a complex number is at the zero pole of the
-     * Riemann sphere.
-     *
-     * @returns {boolean}
-     */
-    isZero() {
-        return this['im'] === 0 && this['re'] === 0;
+    // Determines whether or not a complex number is at the zero pole of the Riemann sphere.
+    isZero(): boolean {
+        return this.im === 0 && this.re === 0;
     }
 
-    /**
-     * Determines whether a complex number is not at the infinity pole of the
-     * Riemann sphere.
-     *
-     * @returns {boolean}
-     */
-    isFinite() {
-        return isFinite(this['re']) && isFinite(this['im']);
+    // Determines whether a complex number is not at the infinity pole of the Riemann sphere.
+    isFinite(): boolean {
+        return isFinite(this.re) && isFinite(this.im);
     }
 
-    /**
-     * Determines whether or not a complex number is at the infinity pole of the
-     * Riemann sphere.
-     *
-     * @returns {boolean}
-     */
-    isInfinite() {
+    //  Determines whether or not a complex number is at the infinity pole of the Riemann sphere.
+    isInfinite(): boolean {
         return !this['isFinite']();
     }
 };
-
-Complex['ZERO'] = new Complex(0, 0);
-Complex['ONE'] = new Complex(1, 0);
-Complex['I'] = new Complex(0, 1);
-Complex['PI'] = new Complex(Math.PI, 0);
-Complex['E'] = new Complex(Math.E, 0);
-Complex['INFINITY'] = new Complex(Infinity, Infinity);
-Complex['NAN'] = new Complex(NaN, NaN);
-Complex['EPSILON'] = 1e-15;
