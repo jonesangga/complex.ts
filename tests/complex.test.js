@@ -5,7 +5,7 @@ import { deepEqual, equal } from "node:assert/strict";
 var functionTests = [{
   set: Complex.I,
   fn: "mul",
-  param: Complex(Math.PI).exp(),
+  param: new Complex(Math.PI).exp(),
   expect: "23.140692632779267i"
 }, {
   set: new Complex(1, 4),
@@ -620,91 +620,91 @@ var functionTests = [{
   fn: "cot",
   expect: "1.6636768291213935e-7 - 1.0000001515864902i"
 }, {
-  set: Complex(1, 1).sub(0, 1), // Distance
+  set: new Complex(1, 1).sub(0, 1), // Distance
   fn: "abs",
   expect: "1"
 }, {
-  set: Complex(1, 1), // Rotate around center
+  set: new Complex(1, 1), // Rotate around center
   fn: "mul",
   param: { abs: 1, arg: Math.PI / 2 },
   expect: "-0.9999999999999999 + i"
 }, {
-  set: Complex(1, 1).sub(0, 1).mul({ abs: 1, arg: Math.PI / 2 }), // Rotate around another point
+  set: new Complex(1, 1).sub(0, 1).mul({ abs: 1, arg: Math.PI / 2 }), // Rotate around another point
   fn: "add",
   param: "i",
   expect: "2i"
 }, {
-  set: Complex(0, 10000000000),
+  set: new Complex(0, 10000000000),
   fn: "log",
   param: null,
   expect: "23.025850929940457 + 1.5707963267948966i"
 }, {
-  set: Complex(0, 1000000000000000),
+  set: new Complex(0, 1000000000000000),
   fn: "log",
   param: null,
   expect: "34.538776394910684 + 1.5707963267948966i"
 }, {
-  set: Complex(0, 100000000000000000),
+  set: new Complex(0, 100000000000000000),
   fn: "log",
   param: null,
   expect: "39.14394658089878 + 1.5707963267948966i"
 }, {
-  set: Complex(0, 10000000000000000000),
+  set: new Complex(0, 10000000000000000000),
   fn: "log",
   param: null,
   expect: "43.74911676688687 + 1.5707963267948966i"
 }, {
-  set: Complex(0, 1e+30),
+  set: new Complex(0, 1e+30),
   fn: "log",
   param: null,
   expect: "69.07755278982137 + 1.5707963267948966i"
 }, {
-  set: Complex(1, 10000000000),
+  set: new Complex(1, 10000000000),
   fn: "log",
   param: null,
   expect: "23.025850929940454 + 1.5707963266948965i"
 }, {
-  set: Complex(1, 1000000000000000),
+  set: new Complex(1, 1000000000000000),
   fn: "log",
   param: null,
   expect: "34.538776394910684 + 1.5707963267948957i"
 }, {
-  set: Complex(1, 100000000000000000),
+  set: new Complex(1, 100000000000000000),
   fn: "log",
   param: null,
   expect: "39.14394658089878 + 1.5707963267948966i"
 }, {
-  set: Complex(1, 10000000000000000000),
+  set: new Complex(1, 10000000000000000000),
   fn: "log",
   param: null,
   expect: "43.74911676688687 + 1.5707963267948966i"
 }, {
-  set: Complex(1, 1e+30),
+  set: new Complex(1, 1e+30),
   fn: "log",
   param: null,
   expect: "69.07755278982137 + 1.5707963267948966i"
 }, {
-  set: Complex(-1, 10000000000),
+  set: new Complex(-1, 10000000000),
   fn: "log",
   param: null,
   expect: "23.025850929940454 + 1.5707963268948968i"
 }, {
-  set: Complex(-1, 1000000000000000),
+  set: new Complex(-1, 1000000000000000),
   fn: "log",
   param: null,
   expect: "34.538776394910684 + 1.5707963267948977i"
 }, {
-  set: Complex(-1, 100000000000000000),
+  set: new Complex(-1, 100000000000000000),
   fn: "log",
   param: null,
   expect: "39.14394658089878 + 1.5707963267948968i"
 }, {
-  set: Complex(-1, 10000000000000000000),
+  set: new Complex(-1, 10000000000000000000),
   fn: "log",
   param: null,
   expect: "43.74911676688687 + 1.5707963267948966i"
 }, {
-  set: Complex(-1, 1e+30),
+  set: new Complex(-1, 1e+30),
   fn: "log",
   param: null,
   expect: "69.07755278982137 + 1.5707963267948966i"
@@ -905,28 +905,28 @@ describe("Complex constructor", function () {
 describe("Complex Details", function () {
 
   it("should work with different params", function () {
-    equal(Complex(1, -1).toString(), "1 - i");
-    equal(Complex(0, 0).toString(), "0");
-    equal(Complex(0, 2).toString(), "2i");
+    equal(new Complex(1, -1).toString(), "1 - i");
+    equal(new Complex(0, 0).toString(), "0");
+    equal(new Complex(0, 2).toString(), "2i");
     equal(Complex.I.toString(), "i");
-    equal(Complex(0, -2).toString(), "-2i");
-    equal(Complex({ re: 0, im: -2 }).toString(), "-2i");
+    equal(new Complex(0, -2).toString(), "-2i");
+    equal(new Complex({ re: 0, im: -2 }).toString(), "-2i");
   });
 
   it("Complex Combinations", function () {
 
-    var zero = Complex(0, 0), one = Complex(1, 1), two = Complex(2, 2);
+    var zero = new Complex(0, 0), one = new Complex(1, 1), two = new Complex(2, 2);
 
     equal(zero.toString(), "0");
     equal(one.toString(), "1 + i");
-    deepEqual(one.neg(), (Complex(-1, -1)));
-    deepEqual(one.conjugate(), (Complex(1, -1)));
+    deepEqual(one.neg(), (new Complex(-1, -1)));
+    deepEqual(one.conjugate(), (new Complex(1, -1)));
     equal(one.abs(), Math.SQRT2);
     equal(one.arg(), Math.PI / 4);
     equal(one.add(one).toString(), two.toString());
     equal(one.sub(one).toString(), zero.toString());
     equal(one.mul(2).toString(), two.toString());
-    equal(one.mul(one).toString(), Complex(0, 2).toString());
+    equal(one.mul(one).toString(), new Complex(0, 2).toString());
     equal(one.div(2).toString(), "0.5 + 0.5i");
     equal(one.div(one).toString(), "1");
     equal(one.div(0).toString(), "Infinity");
@@ -942,19 +942,19 @@ describe("Complex Details", function () {
     equal(one.acos().toString(), "0.9045568943023813 - 1.0612750619050355i");
     equal(one.atan().toString(), "1.0172219678978514 + 0.40235947810852507i");
 
-    var t = Complex(3, 4);
+    var t = new Complex(3, 4);
     equal(t.asinh().toString(), "2.29991404087927 + 0.9176168533514786i");
 
     equal(t.abs(), 5);
 
-    equal(Complex("5i + 3").log().exp().toString(), "3 + 5i")
-    equal(Complex("-2i - 1").log().exp().toString(), "-1 - 2i")
+    equal(new Complex("5i + 3").log().exp().toString(), "3 + 5i")
+    equal(new Complex("-2i - 1").log().exp().toString(), "-1 - 2i")
   });
 
   it("should calculate distributed conjugate", function () {
 
-    var c1 = Complex(7, 3);
-    var c2 = Complex(1, 2);
+    var c1 = new Complex(7, 3);
+    var c2 = new Complex(1, 2);
 
     var r1 = c1.add(c2).conjugate();
     var r2 = c1.conjugate().add(c2.conjugate());
@@ -963,7 +963,7 @@ describe("Complex Details", function () {
   });
 
   it("should be raised to power of 6", function () {
-    var c1 = Complex(2, 2);
+    var c1 = new Complex(2, 2);
 
     var t = c1.pow(6);
 
@@ -994,77 +994,77 @@ describe("Complex Details", function () {
   });
 
   it('should handle get real part', function () {
-    equal(Complex({ abs: 1, arg: Math.PI / 4 }).re, Math.SQRT2 / 2);
+    equal(new Complex({ abs: 1, arg: Math.PI / 4 }).re, Math.SQRT2 / 2);
   });
 
   it('should handle get complex part', function () {
-    equal(Complex({ abs: 1, arg: Math.PI / 4 }).im, 0.7071067811865475);
+    equal(new Complex({ abs: 1, arg: Math.PI / 4 }).im, 0.7071067811865475);
   });
 
   it('should handle sum', function () {
-    equal(Complex({ abs: 1, arg: 0 }).add({ abs: 1, arg: Math.PI / 2 }).abs(), Math.SQRT2);
-    equal(Complex({ abs: 1, arg: 0 }).add({ abs: 1, arg: Math.PI / 2 }).arg(), Math.PI / 4);
+    equal(new Complex({ abs: 1, arg: 0 }).add({ abs: 1, arg: Math.PI / 2 }).abs(), Math.SQRT2);
+    equal(new Complex({ abs: 1, arg: 0 }).add({ abs: 1, arg: Math.PI / 2 }).arg(), Math.PI / 4);
   });
 
   it('should handle conjugate', function () {
-    equal(Complex({ abs: 1, arg: Math.PI / 4 }).conjugate().toString(), Complex({ abs: 1, arg: -Math.PI / 4 }).toString());
+    equal(new Complex({ abs: 1, arg: Math.PI / 4 }).conjugate().toString(), new Complex({ abs: 1, arg: -Math.PI / 4 }).toString());
   });
 
   it('should handle substract', function () {
-    equal(Complex({ abs: 1, arg: 0 }).sub({ abs: 1, arg: Math.PI / 2 }).abs().toString(), "1.414213562373095");
-    equal(Complex({ abs: 1, arg: 0 }).sub({ abs: 1, arg: Math.PI / 2 }).arg().toString(), "-0.7853981633974484");
+    equal(new Complex({ abs: 1, arg: 0 }).sub({ abs: 1, arg: Math.PI / 2 }).abs().toString(), "1.414213562373095");
+    equal(new Complex({ abs: 1, arg: 0 }).sub({ abs: 1, arg: Math.PI / 2 }).arg().toString(), "-0.7853981633974484");
   });
 
   it('should handle arg for the first quadrant', function () {
-    equal(Complex({ re: 1, im: 1 }).arg(), Math.PI / 4);
+    equal(new Complex({ re: 1, im: 1 }).arg(), Math.PI / 4);
   });
 
   it('should handle arg for the second quadrant', function () {
-    equal(Complex({ re: -1, im: 1 }).arg(), 3 * Math.PI / 4);
+    equal(new Complex({ re: -1, im: 1 }).arg(), 3 * Math.PI / 4);
   });
 
   it('should handle arg for the third quadrant', function () {
-    equal(Complex({ re: -1, im: -1 }).arg(), -3 * Math.PI / 4);
+    equal(new Complex({ re: -1, im: -1 }).arg(), -3 * Math.PI / 4);
   });
 
   it('should handle arg for the fourth quadrant', function () {
-    equal(Complex({ re: 1, im: -1 }).arg(), -Math.PI / 4);
+    equal(new Complex({ re: 1, im: -1 }).arg(), -Math.PI / 4);
   });
 
   it('should handle arg for the fourth and first quadrant', function () {
-    equal(Complex({ re: 1, im: 0 }).arg(), 0);
+    equal(new Complex({ re: 1, im: 0 }).arg(), 0);
   });
 
   it('should handle arg for first and second quadrant', function () {
-    equal(Complex({ re: 0, im: 1 }).arg(), Math.PI / 2);
+    equal(new Complex({ re: 0, im: 1 }).arg(), Math.PI / 2);
   });
 
   it('should handle arg for the second and third quadrant', function () {
-    equal(Complex({ re: -1, im: 0 }).arg(), Math.PI);
+    equal(new Complex({ re: -1, im: 0 }).arg(), Math.PI);
   });
 
   it('should handle arg for the third and fourth quadrant', function () {
-    equal(Complex({ re: 0, im: -1 }).arg(), -Math.PI / 2);
+    equal(new Complex({ re: 0, im: -1 }).arg(), -Math.PI / 2);
   });
 
   it("should eat its own dog food", function () {
 
-    var a = Complex(1, -5).toString();
-    var b = Complex(a).toString();
-    var c = Complex(b).mul(a);
+    var a = new Complex(1, -5).toString();
+    var b = new Complex(a).toString();
+    var c = new Complex(b).mul(a);
 
     equal(c.toString(), '-24 - 10i');
   });
 
   it("should calculate the absolute value of i", function () {
 
-    var a = Complex("i").sign().inverse().mul("i");
+    var a = new Complex("i").sign().inverse().mul("i");
 
     equal(a.toString(), '1');
   });
 
   it('should take the natural logarithm', function () {
-    var n = Complex(Math.E * Math.E).log().div("i").mul(-Math.PI * 2, 1);
+    var n = new Complex(Math.E * Math.E).log().div("i").mul(-Math.PI * 2, 1);
 
     equal(n.toString(), '2 + ' + 4 * Math.PI + "i");
   });
@@ -1074,9 +1074,9 @@ describe("Complex Details", function () {
     var a = Math.random() * 10;
     var b = Math.random() * 10;
 
-    var t1 = Complex({re: a, im: b}).exp();
-    var t2 = Complex(a).exp().mul(Complex.I.mul(b).exp());
-    var t3 = Complex(a).exp().mul(Complex({re:0, im: b}).exp());
+    var t1 = new Complex({re: a, im: b}).exp();
+    var t2 = new Complex(a).exp().mul(Complex.I.mul(b).exp());
+    var t3 = new Complex(a).exp().mul(new Complex({re:0, im: b}).exp());
 
     equal(t1.toString(), t2.toString());
     equal(t2.toString(), t3.toString());

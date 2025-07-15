@@ -1,4 +1,3 @@
-// @ts-check
 /**
  * @license Complex.js v2.4.2 11/5/2024
  * https://raw.org/article/complex-numbers-in-javascript/
@@ -284,43 +283,48 @@ const parse = function (a, b) {
     return z;
 };
 
-/**
- * @constructor
- * @returns {Complex}
- */
-export function Complex(a, b) {
-    if (!(this instanceof Complex)) {
-        return new Complex(a, b);
+type AValue =
+  | Complex
+  | { im: number; re: number }
+  | { abs: number; arg: number }
+  | { r: number; phi: number }
+  | [number, number]
+  | string
+  | number
+
+type BValue = number;
+
+export class Complex {
+    re: number;
+    im: number;
+
+    constructor(a: AValue, b?: BValue) {
+        const z = parse(a, b);
+
+        this['re'] = z['re'];
+        this['im'] = z['im'];
     }
 
-    const z = parse(a, b);
-
-    this['re'] = z['re'];
-    this['im'] = z['im'];
-    return this;
-}
-
-Complex.prototype = {
     /**
      * Calculates the sign of a complex number, which is a normalized complex
      *
      * @returns {Complex}
      */
-    'sign': function () {
+    sign() {
 
         const abs = hypot(this['re'], this['im']);
 
         return new Complex(
             this['re'] / abs,
             this['im'] / abs);
-    },
+    }
 
     /**
      * Adds two complex numbers
      *
      * @returns {Complex}
      */
-    'add': function (a, b) {
+    add(a, b) {
 
         const z = parse(a, b);
 
@@ -340,14 +344,14 @@ Complex.prototype = {
         return new Complex(
             this['re'] + z['re'],
             this['im'] + z['im']);
-    },
+    }
 
     /**
      * Subtracts two complex numbers
      *
      * @returns {Complex}
      */
-    'sub': function (a, b) {
+    sub(a, b) {
 
         const z = parse(a, b);
 
@@ -367,14 +371,14 @@ Complex.prototype = {
         return new Complex(
             this['re'] - z['re'],
             this['im'] - z['im']);
-    },
+    }
 
     /**
      * Multiplies two complex numbers
      *
      * @returns {Complex}
      */
-    'mul': function (a, b) {
+    mul(a, b) {
 
         const z = parse(a, b);
 
@@ -401,14 +405,14 @@ Complex.prototype = {
         return new Complex(
             this['re'] * z['re'] - this['im'] * z['im'],
             this['re'] * z['im'] + this['im'] * z['re']);
-    },
+    }
 
     /**
      * Divides two complex numbers
      *
      * @returns {Complex}
      */
-    'div': function (a, b) {
+    div(a, b) {
 
         const z = parse(a, b);
 
@@ -455,14 +459,14 @@ Complex.prototype = {
                 (this['re'] + this['im'] * x) / t,
                 (this['im'] - this['re'] * x) / t);
         }
-    },
+    }
 
     /**
      * Calculate the power of two complex numbers
      *
      * @returns {Complex}
      */
-    'pow': function (a, b) {
+    pow(a, b) {
 
         const z = parse(a, b);
 
@@ -526,14 +530,14 @@ Complex.prototype = {
         return new Complex(
             re * Math.cos(im),
             re * Math.sin(im));
-    },
+    }
 
     /**
      * Calculate the complex square root
      *
      * @returns {Complex}
      */
-    'sqrt': function () {
+    sqrt() {
 
         const a = this['re'];
         const b = this['im'];
@@ -557,14 +561,14 @@ Complex.prototype = {
         } else {
             return new Complex(im, b < 0 ? -re : re);
         }
-    },
+    }
 
     /**
      * Calculate the complex exponent
      *
      * @returns {Complex}
      */
-    'exp': function () {
+    exp() {
 
         const er = Math.exp(this['re']);
 
@@ -574,7 +578,7 @@ Complex.prototype = {
         return new Complex(
             er * Math.cos(this['im']),
             er * Math.sin(this['im']));
-    },
+    }
 
     /**
      * Calculate the complex exponent and subtracts one.
@@ -584,7 +588,7 @@ Complex.prototype = {
      *
      * @returns {Complex}
      */
-    'expm1': function () {
+    expm1() {
 
         /**
          * exp(a + i*b) - 1
@@ -598,14 +602,10 @@ Complex.prototype = {
         return new Complex(
             Math.expm1(a) * Math.cos(b) + cosm1(b),
             Math.exp(a) * Math.sin(b));
-    },
+    }
 
-    /**
-     * Calculate the natural log
-     *
-     * @returns {Complex}
-     */
-    'log': function () {
+    // Calculate the natural log
+    log() {
 
         const a = this['re'];
         const b = this['im'];
@@ -617,34 +617,34 @@ Complex.prototype = {
         return new Complex(
             logHypot(a, b),
             Math.atan2(b, a));
-    },
+    }
 
     /**
      * Calculate the magnitude of the complex number
      *
      * @returns {number}
      */
-    'abs': function () {
+    abs() {
 
         return hypot(this['re'], this['im']);
-    },
+    }
 
     /**
      * Calculate the angle of the complex number
      *
      * @returns {number}
      */
-    'arg': function () {
+    arg() {
 
         return Math.atan2(this['im'], this['re']);
-    },
+    }
 
     /**
      * Calculate the sine of the complex number
      *
      * @returns {Complex}
      */
-    'sin': function () {
+    sin() {
 
         // sin(z) = ( e^iz - e^-iz ) / 2i 
         //        = sin(a)cosh(b) + i cos(a)sinh(b)
@@ -655,14 +655,14 @@ Complex.prototype = {
         return new Complex(
             Math.sin(a) * cosh(b),
             Math.cos(a) * sinh(b));
-    },
+    }
 
     /**
      * Calculate the cosine
      *
      * @returns {Complex}
      */
-    'cos': function () {
+    cos() {
 
         // cos(z) = ( e^iz + e^-iz ) / 2 
         //        = cos(a)cosh(b) - i sin(a)sinh(b)
@@ -673,14 +673,14 @@ Complex.prototype = {
         return new Complex(
             Math.cos(a) * cosh(b),
             -Math.sin(a) * sinh(b));
-    },
+    }
 
     /**
      * Calculate the tangent
      *
      * @returns {Complex}
      */
-    'tan': function () {
+    tan() {
 
         // tan(z) = sin(z) / cos(z) 
         //        = ( e^iz - e^-iz ) / ( i( e^iz + e^-iz ) )
@@ -694,14 +694,14 @@ Complex.prototype = {
         return new Complex(
             Math.sin(a) / d,
             sinh(b) / d);
-    },
+    }
 
     /**
      * Calculate the cotangent
      *
      * @returns {Complex}
      */
-    'cot': function () {
+    cot() {
 
         // cot(c) = i(e^(ci) + e^(-ci)) / (e^(ci) - e^(-ci))
 
@@ -712,14 +712,14 @@ Complex.prototype = {
         return new Complex(
             -Math.sin(a) / d,
             sinh(b) / d);
-    },
+    }
 
     /**
      * Calculate the secant
      *
      * @returns {Complex}
      */
-    'sec': function () {
+    sec() {
 
         // sec(c) = 2 / (e^(ci) + e^(-ci))
 
@@ -730,14 +730,14 @@ Complex.prototype = {
         return new Complex(
             Math.cos(a) * cosh(b) / d,
             Math.sin(a) * sinh(b) / d);
-    },
+    }
 
     /**
      * Calculate the cosecans
      *
      * @returns {Complex}
      */
-    'csc': function () {
+    csc() {
 
         // csc(c) = 2i / (e^(ci) - e^(-ci))
 
@@ -748,14 +748,14 @@ Complex.prototype = {
         return new Complex(
             Math.sin(a) * cosh(b) / d,
             -Math.cos(a) * sinh(b) / d);
-    },
+    }
 
     /**
      * Calculate the complex arcus sinus
      *
      * @returns {Complex}
      */
-    'asin': function () {
+    asin() {
 
         // asin(c) = -i * log(ci + sqrt(1 - c^2))
 
@@ -771,14 +771,14 @@ Complex.prototype = {
             t1['im'] + a)['log']();
 
         return new Complex(t2['im'], -t2['re']);
-    },
+    }
 
     /**
      * Calculate the complex arcus cosinus
      *
      * @returns {Complex}
      */
-    'acos': function () {
+    acos() {
 
         // acos(c) = i * log(c - i * sqrt(1 - c^2))
 
@@ -794,14 +794,14 @@ Complex.prototype = {
             t1['im'] + a)['log']();
 
         return new Complex(Math.PI / 2 - t2['im'], t2['re']);
-    },
+    }
 
     /**
      * Calculate the complex arcus tangent
      *
      * @returns {Complex}
      */
-    'atan': function () {
+    atan() {
 
         // atan(c) = i / 2 log((i + x) / (i - x))
 
@@ -826,14 +826,14 @@ Complex.prototype = {
             -2 * a / d).log();
 
         return new Complex(-0.5 * t1['im'], 0.5 * t1['re']);
-    },
+    }
 
     /**
      * Calculate the complex arcus cotangent
      *
      * @returns {Complex}
      */
-    'acot': function () {
+    acot() {
 
         // acot(c) = i / 2 log((c - i) / (c + i))
 
@@ -852,14 +852,14 @@ Complex.prototype = {
             : new Complex(
                 (a !== 0) ? a / 0 : 0,
                 (b !== 0) ? -b / 0 : 0).atan();
-    },
+    }
 
     /**
      * Calculate the complex arcus secant
      *
      * @returns {Complex}
      */
-    'asec': function () {
+    asec() {
 
         // asec(c) = -i * log(1 / c + sqrt(1 - i / c^2))
 
@@ -878,14 +878,14 @@ Complex.prototype = {
             : new Complex(
                 (a !== 0) ? a / 0 : 0,
                 (b !== 0) ? -b / 0 : 0).acos();
-    },
+    }
 
     /**
      * Calculate the complex arcus cosecans
      *
      * @returns {Complex}
      */
-    'acsc': function () {
+    acsc() {
 
         // acsc(c) = -i * log(i / c + sqrt(1 - 1 / c^2))
 
@@ -904,14 +904,14 @@ Complex.prototype = {
             : new Complex(
                 (a !== 0) ? a / 0 : 0,
                 (b !== 0) ? -b / 0 : 0).asin();
-    },
+    }
 
     /**
      * Calculate the complex sinh
      *
      * @returns {Complex}
      */
-    'sinh': function () {
+    sinh() {
 
         // sinh(c) = (e^c - e^-c) / 2
 
@@ -921,14 +921,14 @@ Complex.prototype = {
         return new Complex(
             sinh(a) * Math.cos(b),
             cosh(a) * Math.sin(b));
-    },
+    }
 
     /**
      * Calculate the complex cosh
      *
      * @returns {Complex}
      */
-    'cosh': function () {
+    cosh() {
 
         // cosh(c) = (e^c + e^-c) / 2
 
@@ -938,14 +938,14 @@ Complex.prototype = {
         return new Complex(
             cosh(a) * Math.cos(b),
             sinh(a) * Math.sin(b));
-    },
+    }
 
     /**
      * Calculate the complex tanh
      *
      * @returns {Complex}
      */
-    'tanh': function () {
+    tanh() {
 
         // tanh(c) = (e^c - e^-c) / (e^c + e^-c)
 
@@ -956,14 +956,14 @@ Complex.prototype = {
         return new Complex(
             sinh(a) / d,
             Math.sin(b) / d);
-    },
+    }
 
     /**
      * Calculate the complex coth
      *
      * @returns {Complex}
      */
-    'coth': function () {
+    coth() {
 
         // coth(c) = (e^c + e^-c) / (e^c - e^-c)
 
@@ -974,14 +974,14 @@ Complex.prototype = {
         return new Complex(
             sinh(a) / d,
             -Math.sin(b) / d);
-    },
+    }
 
     /**
      * Calculate the complex coth
      *
      * @returns {Complex}
      */
-    'csch': function () {
+    csch() {
 
         // csch(c) = 2 / (e^c - e^-c)
 
@@ -992,14 +992,14 @@ Complex.prototype = {
         return new Complex(
             -2 * sinh(a) * Math.cos(b) / d,
             2 * cosh(a) * Math.sin(b) / d);
-    },
+    }
 
     /**
      * Calculate the complex sech
      *
      * @returns {Complex}
      */
-    'sech': function () {
+    sech() {
 
         // sech(c) = 2 / (e^c + e^-c)
 
@@ -1010,14 +1010,14 @@ Complex.prototype = {
         return new Complex(
             2 * cosh(a) * Math.cos(b) / d,
             -2 * sinh(a) * Math.sin(b) / d);
-    },
+    }
 
     /**
      * Calculate the complex asinh
      *
      * @returns {Complex}
      */
-    'asinh': function () {
+    asinh() {
 
         // asinh(c) = log(c + sqrt(c^2 + 1))
 
@@ -1033,14 +1033,14 @@ Complex.prototype = {
         res['re'] = -res['im'];
         res['im'] = tmp;
         return res;
-    },
+    }
 
     /**
      * Calculate the complex acosh
      *
      * @returns {Complex}
      */
-    'acosh': function () {
+    acosh() {
 
         // acosh(c) = log(c + sqrt(c^2 - 1))
 
@@ -1055,14 +1055,14 @@ Complex.prototype = {
             res['re'] = tmp;
         }
         return res;
-    },
+    }
 
     /**
      * Calculate the complex atanh
      *
      * @returns {Complex}
      */
-    'atanh': function () {
+    atanh() {
 
         // atanh(c) = log((1+c) / (1-c)) / 2
 
@@ -1089,14 +1089,14 @@ Complex.prototype = {
             x['im'] = -x['im'];
         }
         return x;
-    },
+    }
 
     /**
      * Calculate the complex acoth
      *
      * @returns {Complex}
      */
-    'acoth': function () {
+    acoth() {
 
         // acoth(c) = log((c+1) / (c-1)) / 2
 
@@ -1115,14 +1115,14 @@ Complex.prototype = {
             : new Complex(
                 (a !== 0) ? a / 0 : 0,
                 (b !== 0) ? -b / 0 : 0).atanh();
-    },
+    }
 
     /**
      * Calculate the complex acsch
      *
      * @returns {Complex}
      */
-    'acsch': function () {
+    acsch() {
 
         // acsch(c) = log((1+sqrt(1+c^2))/c)
 
@@ -1145,14 +1145,14 @@ Complex.prototype = {
             : new Complex(
                 (a !== 0) ? a / 0 : 0,
                 (b !== 0) ? -b / 0 : 0).asinh();
-    },
+    }
 
     /**
      * Calculate the complex asech
      *
      * @returns {Complex}
      */
-    'asech': function () {
+    asech() {
 
         // asech(c) = log((1+sqrt(1-c^2))/c)
 
@@ -1171,14 +1171,14 @@ Complex.prototype = {
             : new Complex(
                 (a !== 0) ? a / 0 : 0,
                 (b !== 0) ? -b / 0 : 0).acosh();
-    },
+    }
 
     /**
      * Calculate the complex inverse 1/z
      *
      * @returns {Complex}
      */
-    'inverse': function () {
+    inverse() {
 
         // 1 / 0 = Infinity and 1 / Infinity = 0
         if (this['isZero']()) {
@@ -1195,69 +1195,69 @@ Complex.prototype = {
         const d = a * a + b * b;
 
         return new Complex(a / d, -b / d);
-    },
+    }
 
     /**
      * Returns the complex conjugate
      *
      * @returns {Complex}
      */
-    'conjugate': function () {
+    conjugate() {
 
         return new Complex(this['re'], -this['im']);
-    },
+    }
 
     /**
      * Gets the negated complex number
      *
      * @returns {Complex}
      */
-    'neg': function () {
+    neg() {
 
         return new Complex(-this['re'], -this['im']);
-    },
+    }
 
     /**
      * Ceils the actual complex number
      *
      * @returns {Complex}
      */
-    'ceil': function (places) {
+    ceil(places) {
 
         places = Math.pow(10, places || 0);
 
         return new Complex(
             Math.ceil(this['re'] * places) / places,
             Math.ceil(this['im'] * places) / places);
-    },
+    }
 
     /**
      * Floors the actual complex number
      *
      * @returns {Complex}
      */
-    'floor': function (places) {
+    floor(places) {
 
         places = Math.pow(10, places || 0);
 
         return new Complex(
             Math.floor(this['re'] * places) / places,
             Math.floor(this['im'] * places) / places);
-    },
+    }
 
     /**
      * Ceils the actual complex number
      *
      * @returns {Complex}
      */
-    'round': function (places) {
+    round(places) {
 
         places = Math.pow(10, places || 0);
 
         return new Complex(
             Math.round(this['re'] * places) / places,
             Math.round(this['im'] * places) / places);
-    },
+    }
 
     /**
      * Compares two complex numbers
@@ -1266,30 +1266,30 @@ Complex.prototype = {
      *
      * @returns {boolean}
      */
-    'equals': function (a, b) {
+    equals(a, b) {
 
         const z = parse(a, b);
 
         return Math.abs(z['re'] - this['re']) <= Complex['EPSILON'] &&
             Math.abs(z['im'] - this['im']) <= Complex['EPSILON'];
-    },
+    }
 
     /**
      * Clones the actual object
      *
      * @returns {Complex}
      */
-    'clone': function () {
+    clone() {
 
         return new Complex(this['re'], this['im']);
-    },
+    }
 
     /**
      * Gets a string of the actual complex number
      *
      * @returns {string}
      */
-    'toString': function () {
+    toString() {
 
         let a = this['re'];
         let b = this['im'];
@@ -1335,39 +1335,39 @@ Complex.prototype = {
             ret += b;
         }
         return ret + "i";
-    },
+    }
 
     /**
      * Returns the actual number as a vector
      *
      * @returns {Array}
      */
-    'toVector': function () {
+    toVector() {
 
         return [this['re'], this['im']];
-    },
+    }
 
     /**
      * Returns the actual real value of the current object
      *
      * @returns {number|null}
      */
-    'valueOf': function () {
+    valueOf() {
 
         if (this['im'] === 0) {
             return this['re'];
         }
         return null;
-    },
+    }
 
     /**
      * Determines whether a complex number is not on the Riemann sphere.
      *
      * @returns {boolean}
      */
-    'isNaN': function () {
+    isNaN() {
         return isNaN(this['re']) || isNaN(this['im']);
-    },
+    }
 
     /**
      * Determines whether or not a complex number is at the zero pole of the
@@ -1375,9 +1375,9 @@ Complex.prototype = {
      *
      * @returns {boolean}
      */
-    'isZero': function () {
+    isZero() {
         return this['im'] === 0 && this['re'] === 0;
-    },
+    }
 
     /**
      * Determines whether a complex number is not at the infinity pole of the
@@ -1385,9 +1385,9 @@ Complex.prototype = {
      *
      * @returns {boolean}
      */
-    'isFinite': function () {
+    isFinite() {
         return isFinite(this['re']) && isFinite(this['im']);
-    },
+    }
 
     /**
      * Determines whether or not a complex number is at the infinity pole of the
@@ -1395,7 +1395,7 @@ Complex.prototype = {
      *
      * @returns {boolean}
      */
-    'isInfinite': function () {
+    isInfinite() {
         return !this['isFinite']();
     }
 };
