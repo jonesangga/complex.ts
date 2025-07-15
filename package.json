@@ -2,6 +2,7 @@
     "name": "complex.js",
     "title": "Complex.js",
     "version": "2.4.2",
+    "type": "module",
     "homepage": "https://raw.org/article/complex-numbers-in-javascript/",
     "bugs": "https://github.com/rawify/Complex.js/issues",
     "description": "The RAW complex numbers library",
@@ -50,11 +51,6 @@
         "test": "tests"
     },
     "scripts": {
-        "build": "crude-build Complex",
-        "test": "mocha tests/*.js"
-    },
-    "devDependencies": {
-        "crude-build": "^0.1.2",
-        "mocha": "*"
+        "test": "node --test tests/*.js"
     }
 }

@@ -1,4 +1,3 @@
-"use strict";
 // @ts-check
 /**
  * @license Complex.js v2.4.2 11/5/2024
@@ -7,8 +6,6 @@
  * Copyright (c) 2024, Robert Eisele (https://raw.org/)
  * Licensed under the MIT license.
  **/
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.Complex = Complex;
 /**
  *
  * This class allows the manipulation of complex numbers.
@@ -259,7 +256,7 @@ const parse = function (a, b) {
  * @constructor
  * @returns {Complex}
  */
-function Complex(a, b) {
+export function Complex(a, b) {
     if (!(this instanceof Complex)) {
         return new Complex(a, b);
     }
