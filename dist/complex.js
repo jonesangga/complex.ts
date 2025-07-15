@@ -1,4 +1,5 @@
 "use strict";
+// @ts-check
 /**
  * @license Complex.js v2.4.2 11/5/2024
  * https://raw.org/article/complex-numbers-in-javascript/
@@ -7,6 +8,7 @@
  * Licensed under the MIT license.
  **/
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.Complex = Complex;
 /**
  *
  * This class allows the manipulation of complex numbers.
@@ -146,16 +148,15 @@ const P = { 're': 0, 'im': 0 };
 const parse = function (a, b) {
     const z = P;
     if (a === undefined || a === null) {
-        z['re'] =
-            z['im'] = 0;
+        z['re'] = z['im'] = 0;
     }
     else if (b !== undefined) {
         z['re'] = a;
         z['im'] = b;
     }
-    else
+    else {
         switch (typeof a) {
-            case 'object':
+            case 'object': {
                 if ('im' in a && 're' in a) {
                     z['re'] = a['re'];
                     z['im'] = a['im'];
@@ -182,7 +183,8 @@ const parse = function (a, b) {
                     parser_exit();
                 }
                 break;
-            case 'string':
+            }
+            case 'string': {
                 z['im'] = /* void */
                     z['re'] = 0;
                 const tokens = a.replace(/_/g, '')
@@ -192,56 +194,61 @@ const parse = function (a, b) {
                 if (tokens === null) {
                     parser_exit();
                 }
-                for (let i = 0; i < tokens.length; i++) {
-                    const c = tokens[i];
-                    if (c === ' ' || c === '\t' || c === '\n') {
-                        /* void */
-                    }
-                    else if (c === '+') {
-                        plus++;
-                    }
-                    else if (c === '-') {
-                        minus++;
-                    }
-                    else if (c === 'i' || c === 'I') {
-                        if (plus + minus === 0) {
-                            parser_exit();
+                else {
+                    for (let i = 0; i < tokens.length; i++) {
+                        const c = tokens[i];
+                        if (c === ' ' || c === '\t' || c === '\n') {
+                            /* void */
                         }
-                        if (tokens[i + 1] !== ' ' && !isNaN(tokens[i + 1])) {
-                            z['im'] += parseFloat((minus % 2 ? '-' : '') + tokens[i + 1]);
-                            i++;
+                        else if (c === '+') {
+                            plus++;
                         }
-                        else {
-                            z['im'] += parseFloat((minus % 2 ? '-' : '') + '1');
+                        else if (c === '-') {
+                            minus++;
                         }
-                        plus = minus = 0;
-                    }
-                    else {
-                        if (plus + minus === 0 || isNaN(c)) {
-                            parser_exit();
-                        }
-                        if (tokens[i + 1] === 'i' || tokens[i + 1] === 'I') {
-                            z['im'] += parseFloat((minus % 2 ? '-' : '') + c);
-                            i++;
+                        else if (c === 'i' || c === 'I') {
+                            if (plus + minus === 0) {
+                                parser_exit();
+                            }
+                            if (tokens[i + 1] !== ' ' && !isNaN(parseInt(tokens[i + 1]))) {
+                                z['im'] += parseFloat((minus % 2 ? '-' : '') + tokens[i + 1]);
+                                i++;
+                            }
+                            else {
+                                z['im'] += parseFloat((minus % 2 ? '-' : '') + '1');
+                            }
+                            plus = minus = 0;
                         }
                         else {
-                            z['re'] += parseFloat((minus % 2 ? '-' : '') + c);
+                            if (plus + minus === 0 || isNaN(parseInt(c))) {
+                                parser_exit();
+                            }
+                            if (tokens[i + 1] === 'i' || tokens[i + 1] === 'I') {
+                                z['im'] += parseFloat((minus % 2 ? '-' : '') + c);
+                                i++;
+                            }
+                            else {
+                                z['re'] += parseFloat((minus % 2 ? '-' : '') + c);
+                            }
+                            plus = minus = 0;
                         }
-                        plus = minus = 0;
                     }
-                }
-                // Still something on the stack
-                if (plus + minus > 0) {
-                    parser_exit();
+                    // Still something on the stack
+                    if (plus + minus > 0) {
+                        parser_exit();
+                    }
                 }
                 break;
-            case 'number':
+            }
+            case 'number': {
                 z['im'] = 0;
                 z['re'] = a;
                 break;
+            }
             default:
                 parser_exit();
         }
+    }
     if (isNaN(z['re']) || isNaN(z['im'])) {
         // If a calculation is NaN, we treat it as NaN and don't throw
         //parser_exit();
@@ -259,10 +266,9 @@ function Complex(a, b) {
     const z = parse(a, b);
     this['re'] = z['re'];
     this['im'] = z['im'];
+    return this;
 }
 Complex.prototype = {
-    're': 0,
-    'im': 0,
     /**
      * Calculates the sign of a complex number, which is a normalized complex
      *
